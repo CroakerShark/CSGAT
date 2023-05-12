@@ -1,0 +1,4 @@
+numpy==1.21.2
+scipy==1.7.3
+torch==1.9.0+cu111
+python==3.8.12
