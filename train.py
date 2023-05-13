@@ -11,14 +11,13 @@ import torch.nn.functional as F
 import torch.optim as optim
 from sklearn import metrics
 from utils import load_data, accuracy
-from models import CSGAT, SpGAT
+from models import CSGAT
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--no-cuda', action='store_true', default=False, help='Disables CUDA training.')
 parser.add_argument('--fastmode', action='store_true', default=False, help='Validate during training pass.')
-parser.add_argument('--sparse', action='store_true', default=False, help='GAT with sparse version or not.')
 parser.add_argument('--seed', type=int, default=72, help='Random seed.')
-parser.add_argument('--epochs', type=int, default=10000, help='Number of epochs to train.')
+parser.add_argument('--epochs', type=int, default=1000, help='Number of epochs to train.')
 parser.add_argument('--lr', type=float, default=0.005, help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4, help='Weight decay (L2 loss on parameters).')
 parser.add_argument('--hidden', type=int, default=8, help='Number of hidden units.')
@@ -36,20 +35,13 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 M, adj, features, labels, idx_train, idx_val, idx_test = load_data()
 
-if args.sparse:
-    model = SpGAT(nfeat=features.shape[1], 
-                nhid=args.hidden, 
-                nclass=int(labels.max()) + 1, 
-                dropout=args.dropout, 
-                nheads=args.nb_heads, 
-                alpha=args.alpha)
-else:
-    model = CSGAT(nfeat=features.shape[1],
-                nhid=args.hidden, 
-                nclass=int(labels.max()) + 1, 
-                dropout=args.dropout, 
-                nheads=args.nb_heads, 
-                alpha=args.alpha)
+model = CSGAT(nfeat=features.shape[1],
+            nhid=args.hidden,
+            nclass=int(labels.max()) + 1,
+            dropout=args.dropout,
+            nheads=args.nb_heads,
+            alpha=args.alpha)
+
 optimizer = optim.Adam(model.parameters(), 
                        lr=args.lr, 
                        weight_decay=args.weight_decay)
